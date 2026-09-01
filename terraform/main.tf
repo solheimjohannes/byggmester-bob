@@ -52,6 +52,62 @@ resource "azurerm_subnet_network_security_group_association" "vm" {
   network_security_group_id = azurerm_network_security_group.vm.id
 }
 
+resource "azurerm_network_security_rule" "vm_allow_aad_outbound" {
+  name                        = "allow-aad-outbound"
+  priority                    = 100
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "VirtualNetwork"
+  destination_address_prefix  = "AzureActiveDirectory"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.vm.name
+}
+
+resource "azurerm_network_security_rule" "vm_allow_keyvault_outbound" {
+  name                        = "allow-keyvault-outbound"
+  priority                    = 110
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "VirtualNetwork"
+  destination_address_prefix  = "AzureKeyVault"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.vm.name
+}
+
+resource "azurerm_network_security_rule" "vm_allow_storage_outbound" {
+  name                        = "allow-storage-outbound"
+  priority                    = 120
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "VirtualNetwork"
+  destination_address_prefix  = "Storage"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.vm.name
+}
+
+resource "azurerm_network_security_rule" "vm_deny_all_outbound" {
+  name                        = "deny-all-outbound"
+  priority                    = 4000
+  direction                   = "Outbound"
+  access                      = "Deny"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.vm.name
+}
+
 # ── Azure Bastion ─────────────────────────────────────────────────────────────
 
 resource "azurerm_public_ip" "bastion" {
@@ -72,6 +128,117 @@ resource "azurerm_bastion_host" "main" {
     subnet_id            = azurerm_subnet.bastion.id
     public_ip_address_id = azurerm_public_ip.bastion.id
   }
+}
+
+resource "azurerm_network_security_group" "bastion" {
+  name                = "nsg-${var.prefix}-bastion"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+}
+
+# Microsoft-required inbound rules for AzureBastionSubnet
+resource "azurerm_network_security_rule" "bastion_allow_https_internet_inbound" {
+  name                        = "allow-https-internet-inbound"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "Internet"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+resource "azurerm_network_security_rule" "bastion_allow_gateway_manager_inbound" {
+  name                        = "allow-gateway-manager-inbound"
+  priority                    = 110
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "GatewayManager"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+resource "azurerm_network_security_rule" "bastion_allow_load_balancer_inbound" {
+  name                        = "allow-azure-load-balancer-inbound"
+  priority                    = 120
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "AzureLoadBalancer"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+resource "azurerm_network_security_rule" "bastion_deny_all_inbound" {
+  name                        = "deny-all-inbound"
+  priority                    = 4000
+  direction                   = "Inbound"
+  access                      = "Deny"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+# Microsoft-required outbound rules for AzureBastionSubnet
+resource "azurerm_network_security_rule" "bastion_allow_vnet_ssh_rdp_outbound" {
+  name                        = "allow-vnet-ssh-rdp-outbound"
+  priority                    = 100
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_ranges     = ["22", "3389"]
+  source_address_prefix       = "*"
+  destination_address_prefix  = "VirtualNetwork"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+resource "azurerm_network_security_rule" "bastion_allow_azure_cloud_outbound" {
+  name                        = "allow-azure-cloud-outbound"
+  priority                    = 110
+  direction                   = "Outbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "443"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "AzureCloud"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+resource "azurerm_network_security_rule" "bastion_deny_all_outbound" {
+  name                        = "deny-all-bastion-outbound"
+  priority                    = 4000
+  direction                   = "Outbound"
+  access                      = "Deny"
+  protocol                    = "*"
+  source_port_range           = "*"
+  destination_port_range      = "*"
+  source_address_prefix       = "*"
+  destination_address_prefix  = "*"
+  resource_group_name         = azurerm_resource_group.main.name
+  network_security_group_name = azurerm_network_security_group.bastion.name
+}
+
+resource "azurerm_subnet_network_security_group_association" "bastion" {
+  subnet_id                 = azurerm_subnet.bastion.id
+  network_security_group_id = azurerm_network_security_group.bastion.id
 }
 
 # ── Private DNS Zones ─────────────────────────────────────────────────────────
@@ -226,6 +393,44 @@ resource "azurerm_private_endpoint" "storage" {
   private_dns_zone_group {
     name                 = "pdnszg-${var.prefix}-storage"
     private_dns_zone_ids = [azurerm_private_dns_zone.storage.id]
+  }
+}
+
+# ── Monitoring ────────────────────────────────────────────────────────────────
+
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "law-${var.prefix}-${var.location}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
+
+resource "azurerm_monitor_diagnostic_setting" "keyvault" {
+  name                       = "diag-${var.prefix}-keyvault"
+  target_resource_id         = azurerm_key_vault.main.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+
+  enabled_log {
+    category = "AuditEvent"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "storage_blob" {
+  name                       = "diag-${var.prefix}-storage-blob"
+  target_resource_id         = "${azurerm_storage_account.main.id}/blobServices/default/"
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+
+  enabled_log {
+    category = "StorageRead"
+  }
+
+  enabled_log {
+    category = "StorageWrite"
+  }
+
+  enabled_log {
+    category = "StorageDelete"
   }
 }
 
