@@ -10,6 +10,7 @@ import { EventModule } from './components/EventModule';
 import { Header } from './components/Header';
 import { useAuth } from './context/useAuth';
 import LoginPage from './pages/LoginPage';
+import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import type { Event, FetchState } from './types';
 import './App.css';
@@ -107,6 +108,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </>

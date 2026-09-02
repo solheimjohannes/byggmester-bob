@@ -61,6 +61,10 @@ export function searchEvents(query: string, limit = 20): Promise<Event[]> {
   );
 }
 
+export function fetchCreatedEvents(userId: string): Promise<Event[]> {
+  return get<Event[]>(`/api/events/created?userId=${encodeURIComponent(userId)}`);
+}
+
 export function formatEventDate(isoString: string, timezone: string): string {
   try {
     return new Intl.DateTimeFormat('en-GB', {
