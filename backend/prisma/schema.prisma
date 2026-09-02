@@ -24,6 +24,11 @@ enum AttendeeStatus {
   cancelled
 }
 
+enum FriendshipStatus {
+  pending
+  accepted
+}
+
 model User {
   id            String    @id @default(cuid())
   email         String    @unique
@@ -33,7 +38,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  events Event[]
+  events                Event[]
+  attendees             Attendee[]
+  friendshipsRequested  Friendship[] @relation("FriendshipRequester")
+  friendshipsReceived   Friendship[] @relation("FriendshipAddressee")
 }
 
 model Venue {
@@ -69,8 +77,27 @@ model Attendee {
   id        String         @id @default(cuid())
   eventId   String
   event     Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   name      String
   email     String
   status    AttendeeStatus @default(confirmed)
   createdAt DateTime       @default(now())
+}
+
+// Bidirectional friendship: one row per request, status tracks lifecycle.
+// requesterId sent the invite; addresseeId received it.
+// A unique constraint on (requesterId, addresseeId) prevents duplicate requests;
+// the self-reference check is enforced at the DB level via a migration constraint.
+model Friendship {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      FriendshipStatus @default(pending)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId])
 }
