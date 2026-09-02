@@ -1,5 +1,6 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
 import session from 'express-session';
+import { ZodError } from 'zod';
 import {
   getUpcomingPlansForUser,
   getEventsCreatedByUser,
@@ -7,6 +8,7 @@ import {
   getFriendsEvents,
   searchEvents,
 } from './queries/events';
+import { createEvent, createEventSchema, EndBeforeStartError } from './queries/createEvent';
 import {
   registerHandler,
   loginHandler,
@@ -126,6 +128,36 @@ app.get('/api/events/friends', async (req, res) => {
     res.json(events);
   } catch {
     res.status(500).json({ error: 'Failed to fetch friends events', code: 'INTERNAL_ERROR' });
+  }
+});
+
+// Create event: requires an authenticated session.
+app.post('/api/events', async (req, res) => {
+  if (!req.session.userId) {
+    res.status(401).json({ error: 'Authentication required', code: 'UNAUTHENTICATED' });
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = createEventSchema.parse(req.body);
+  } catch (e) {
+    if (e instanceof ZodError) {
+      res.status(400).json({ error: e.errors[0].message, code: 'INVALID_INPUT' });
+      return;
+    }
+    throw e;
+  }
+
+  try {
+    const event = await createEvent(parsed, req.session.userId);
+    res.status(201).json(event);
+  } catch (err) {
+    if (err instanceof EndBeforeStartError) {
+      res.status(400).json({ error: err.message, code: err.code });
+      return;
+    }
+    throw err;
   }
 });
 
