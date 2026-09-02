@@ -1,5 +1,22 @@
 import type { Event, User } from './types';
 
+export interface VenueInput {
+  name?: string;
+  address?: string;
+  city?: string;
+}
+
+export interface CreateEventInput {
+  title: string;
+  description?: string;
+  startAt: string;
+  endAt: string;
+  timezone: string;
+  venue?: VenueInput;
+  maxAttendees?: number;
+  visibility: 'public' | 'private';
+}
+
 const BASE = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3001';
 
 async function get<T>(path: string): Promise<T> {
@@ -63,6 +80,10 @@ export function searchEvents(query: string, limit = 20): Promise<Event[]> {
   return get<Event[]>(
     `/api/events/search?q=${encodeURIComponent(query)}&limit=${limit}`,
   );
+}
+
+export function createEvent(input: CreateEventInput): Promise<Event> {
+  return post<Event>('/api/events', input);
 }
 
 export function formatEventDate(isoString: string, timezone: string): string {
