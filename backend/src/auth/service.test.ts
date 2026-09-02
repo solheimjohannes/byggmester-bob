@@ -171,4 +171,24 @@ describe('getUserById', () => {
 
     expect(result).toBeNull();
   });
+
+  it('propagates DB errors so callers can handle them explicitly', async () => {
+    mockPrisma.user.findUnique.mockRejectedValue(new Error('DB connection lost'));
+
+    await expect(getUserById('user1')).rejects.toThrow('DB connection lost');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// verifyCredentials — DB error path
+// ---------------------------------------------------------------------------
+
+describe('verifyCredentials — DB errors', () => {
+  it('propagates DB errors so callers can handle them explicitly', async () => {
+    mockPrisma.user.findUnique.mockRejectedValue(new Error('DB connection lost'));
+
+    await expect(verifyCredentials('alice@example.com', 'password123')).rejects.toThrow(
+      'DB connection lost',
+    );
+  });
 });

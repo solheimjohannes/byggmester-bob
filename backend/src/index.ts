@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import session from 'express-session';
 import {
   getUpcomingPlansForUser,
@@ -147,6 +147,12 @@ app.get('/api/events/search', async (req, res) => {
   } catch {
     res.status(500).json({ error: 'Failed to search events', code: 'INTERNAL_ERROR' });
   }
+});
+
+// Catch-all error handler — ensures every unhandled thrown error returns JSON
+// instead of Express's default HTML error page.
+app.use((_err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  res.status(500).json({ error: 'Internal server error', code: 'INTERNAL_ERROR' });
 });
 
 app.listen(PORT, () => {
