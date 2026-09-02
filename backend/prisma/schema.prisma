@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventVisibility {
+  public
+  private
+}
+
+enum EventStatus {
+  draft
+  published
+  cancelled
+}
+
+enum AttendeeStatus {
+  confirmed
+  waitlisted
+  cancelled
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  events Event[]
+}
+
+model Venue {
+  id      String  @id @default(cuid())
+  name    String?
+  address String?
+  city    String?
+
+  events Event[]
+}
+
+model Event {
+  id           String          @id @default(cuid())
+  title        String
+  description  String?
+  startAt      DateTime        @db.Timestamptz
+  endAt        DateTime        @db.Timestamptz
+  timezone     String
+  venueId      String?
+  venue        Venue?          @relation(fields: [venueId], references: [id])
+  visibility   EventVisibility @default(public)
+  inviteToken  String?         @unique
+  maxAttendees Int?
+  status       EventStatus     @default(draft)
+  createdById  String
+  createdBy    User            @relation(fields: [createdById], references: [id])
+  attendees    Attendee[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model Attendee {
+  id        String         @id @default(cuid())
+  eventId   String
+  event     Event          @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  status    AttendeeStatus @default(confirmed)
+  createdAt DateTime       @default(now())
+}
