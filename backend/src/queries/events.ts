@@ -139,6 +139,20 @@ export async function getFriendsEvents(userId: string, limit = 10) {
 }
 
 /**
+ * Returns all events created by the user, sorted by startAt descending.
+ * Includes all statuses and visibilities — the caller is the creator.
+ */
+export async function getEventsCreatedByUser(userId: string) {
+  userIdSchema.parse(userId);
+
+  return prisma.event.findMany({
+    where: { createdById: userId },
+    include: { venue: true },
+    orderBy: { startAt: 'desc' },
+  });
+}
+
+/**
  * Case-insensitive search against public, published events.
  * Matches title, description, and venue name.
  * Returns empty array for blank queries; never returns private events.
