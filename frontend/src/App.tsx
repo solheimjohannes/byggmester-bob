@@ -9,6 +9,7 @@ import { EventCard } from './components/EventCard';
 import { EventModule } from './components/EventModule';
 import { Header } from './components/Header';
 import { useAuth } from './context/useAuth';
+import CalendarPage from './pages/CalendarPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
@@ -110,6 +111,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/calendar" element={<CalendarPage />} />
       </Routes>
     </>
   );
