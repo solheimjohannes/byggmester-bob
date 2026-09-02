@@ -1,34 +1,62 @@
 import express from 'express';
+import session from 'express-session';
 import {
   getUpcomingPlansForUser,
   getRecommendedEvents,
   getFriendsEvents,
   searchEvents,
 } from './queries/events';
+import {
+  registerHandler,
+  loginHandler,
+  logoutHandler,
+  sessionHandler,
+} from './auth/handlers';
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
-app.use(express.json());
-
 // Permissive CORS for local dev; tighten CORS_ORIGIN env var for production.
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+
 app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   next();
 });
+
+// Respond to preflight OPTIONS requests for all routes.
+app.options(/.*/, (_req, res) => { res.sendStatus(204); });
+
+app.use(express.json());
+
+app.use(
+  session({
+    name: 'sid',
+    secret: process.env.SESSION_SECRET ?? 'dev-secret-change-in-production',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      // Set secure only in production — dev runs over plain HTTP.
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    },
+  }),
+);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Auth session — no auth layer exists yet; always returns null.
-// TODO: wire up session middleware and return the authenticated User.
-app.get('/api/auth/session', (_req, res) => {
-  res.json(null);
-});
+// Auth
+app.get('/api/auth/session', sessionHandler);
+app.post('/api/auth/register', registerHandler);
+app.post('/api/auth/login', loginHandler);
+app.post('/api/auth/logout', logoutHandler);
 
 // Upcoming plans: events the user has confirmed RSVPs for, soonest-first.
 app.get('/api/plans/upcoming', async (req, res) => {
