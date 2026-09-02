@@ -1,0 +1,44 @@
+.event-module {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.event-module__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.event-module__scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+}
+
+.event-module__state {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  padding: 28px 0;
+}
+
+.event-module__state--error {
+  color: var(--color-error);
+}
