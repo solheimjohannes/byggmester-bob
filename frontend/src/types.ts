@@ -1,0 +1,30 @@
+export interface Venue {
+  id: string;
+  name: string | null;
+  address: string | null;
+  city: string | null;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  startAt: string;
+  endAt: string;
+  timezone: string;
+  visibility: 'public' | 'private';
+  venue: Venue | null;
+  status: 'draft' | 'published' | 'cancelled';
+}
+
+export interface User {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+}
+
+export type FetchState<T> =
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'ok'; data: T };
