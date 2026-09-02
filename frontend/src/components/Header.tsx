@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { formatEventDate, searchEvents } from '../api';
-import type { Event, User } from '../types';
+import { formatEventDate, logout, searchEvents } from '../api';
+import { useAuth } from '../context/useAuth';
+import type { Event } from '../types';
 import './Header.css';
 
-interface Props {
-  user: User | null;
-}
-
-export function Header({ user }: Props) {
+export function Header() {
+  const { user, setUser } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Event[]>([]);
@@ -152,26 +150,59 @@ export function Header({ user }: Props) {
             {menuOpen && (
               <nav className="site-header__menu" aria-label="Main navigation">
                 <ul className="site-header__menu-list">
-                  <li>
-                    <a href="/profile" className="site-header__menu-link">
-                      Profile
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/my-events" className="site-header__menu-link">
-                      My Events
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/calendar" className="site-header__menu-link">
-                      Calendar
-                    </a>
-                  </li>
-                  <li>
-                    <a href="/browse" className="site-header__menu-link">
-                      Browse Events
-                    </a>
-                  </li>
+                  {user ? (
+                    <>
+                      <li>
+                        <a href="/profile" className="site-header__menu-link">
+                          Profile
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/my-events" className="site-header__menu-link">
+                          My Events
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/calendar" className="site-header__menu-link">
+                          Calendar
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/browse" className="site-header__menu-link">
+                          Browse Events
+                        </a>
+                      </li>
+                      <li>
+                        <button
+                          className="site-header__menu-link site-header__menu-logout"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            logout().finally(() => setUser(null));
+                          }}
+                        >
+                          Log out
+                        </button>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li>
+                        <a href="/login" className="site-header__menu-link">
+                          Log in
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/register" className="site-header__menu-link">
+                          Register
+                        </a>
+                      </li>
+                      <li>
+                        <a href="/browse" className="site-header__menu-link">
+                          Browse Events
+                        </a>
+                      </li>
+                    </>
+                  )}
                 </ul>
               </nav>
             )}
