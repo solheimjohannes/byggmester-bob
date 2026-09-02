@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import {
   fetchFriendsEvents,
   fetchRecommendations,
-  fetchSession,
   fetchUpcomingPlans,
 } from './api';
 import { EventCard } from './components/EventCard';
 import { EventModule } from './components/EventModule';
 import { Header } from './components/Header';
-import type { Event, FetchState, User } from './types';
+import { useAuth } from './context/useAuth';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import type { Event, FetchState } from './types';
 import './App.css';
 
 type ModuleState = FetchState<Event[]>;
@@ -19,19 +22,13 @@ function errMsg(e: unknown): string {
   return e instanceof Error ? e.message : 'Something went wrong — please refresh.';
 }
 
-export default function App() {
-  // undefined = auth check in flight; null = not signed in
-  const [user, setUser] = useState<User | null | undefined>(undefined);
+function HomePage() {
+  const { user } = useAuth();
   const [upcoming, setUpcoming] = useState<ModuleState>(LOADING);
   const [recs, setRecs] = useState<ModuleState>(LOADING);
   const [friends, setFriends] = useState<ModuleState>(LOADING);
 
   useEffect(() => {
-    fetchSession().then(setUser);
-  }, []);
-
-  useEffect(() => {
-    // Only fetch when we have a confirmed signed-in user
     if (!user) return;
 
     const uid = user.id;
@@ -49,8 +46,8 @@ export default function App() {
       .catch((e: unknown) => setFriends({ status: 'error', message: errMsg(e) }));
   }, [user]);
 
+  // undefined = auth check in flight; null = not signed in
   const authPending = user === undefined;
-  // When not signed in, render modules as empty (no fetch in flight)
   const notSignedIn = user === null;
 
   function moduleProps(state: ModuleState, signedInEmpty: string, signedOutMsg: string) {
@@ -63,45 +60,55 @@ export default function App() {
   }
 
   return (
+    <main className="home-main">
+      <EventModule
+        title="Upcoming Plans"
+        {...moduleProps(
+          upcoming,
+          "No upcoming plans yet — browse events to find something!",
+          "Sign in to see your upcoming plans.",
+        )}
+      >
+        {!notSignedIn && upcoming.status === 'ok' &&
+          upcoming.data.map((event) => <EventCard key={event.id} event={event} />)}
+      </EventModule>
+
+      <EventModule
+        title="For You"
+        {...moduleProps(
+          recs,
+          "No recommendations yet — check back after RSVPing to some events.",
+          "Sign in to get personalised recommendations.",
+        )}
+      >
+        {!notSignedIn && recs.status === 'ok' &&
+          recs.data.map((event) => <EventCard key={event.id} event={event} />)}
+      </EventModule>
+
+      <EventModule
+        title="Friends' Plans"
+        {...moduleProps(
+          friends,
+          "None of your friends have upcoming plans yet.",
+          "Sign in to see what your friends are attending.",
+        )}
+      >
+        {!notSignedIn && friends.status === 'ok' &&
+          friends.data.map((event) => <EventCard key={event.id} event={event} />)}
+      </EventModule>
+    </main>
+  );
+}
+
+export default function App() {
+  return (
     <>
-      <Header user={user ?? null} />
-      <main className="home-main">
-        <EventModule
-          title="Upcoming Plans"
-          {...moduleProps(
-            upcoming,
-            "No upcoming plans yet — browse events to find something!",
-            "Sign in to see your upcoming plans.",
-          )}
-        >
-          {!notSignedIn && upcoming.status === 'ok' &&
-            upcoming.data.map((event) => <EventCard key={event.id} event={event} />)}
-        </EventModule>
-
-        <EventModule
-          title="For You"
-          {...moduleProps(
-            recs,
-            "No recommendations yet — check back after RSVPing to some events.",
-            "Sign in to get personalised recommendations.",
-          )}
-        >
-          {!notSignedIn && recs.status === 'ok' &&
-            recs.data.map((event) => <EventCard key={event.id} event={event} />)}
-        </EventModule>
-
-        <EventModule
-          title="Friends' Plans"
-          {...moduleProps(
-            friends,
-            "None of your friends have upcoming plans yet.",
-            "Sign in to see what your friends are attending.",
-          )}
-        >
-          {!notSignedIn && friends.status === 'ok' &&
-            friends.data.map((event) => <EventCard key={event.id} event={event} />)}
-        </EventModule>
-      </main>
+      <Header />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
     </>
   );
 }
