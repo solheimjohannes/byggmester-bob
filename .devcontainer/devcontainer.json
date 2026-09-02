@@ -1,0 +1,36 @@
+{
+  "name": "Event Application",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/byggmester-bob",
+
+  // Forward the Vite dev server and the Express API
+  "forwardPorts": [5173, 3001],
+  "portsAttributes": {
+    "5173": {
+      "label": "Frontend (Vite)",
+      "onAutoForward": "openBrowserOnce"
+    },
+    "3001": {
+      "label": "Backend (Express API)",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // On first container creation: generate env files, install deps, run migrations
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  // On every start (including after creation): re-generate env files so
+  // CORS_ORIGIN stays correct if the Codespace URL ever changes
+  "postStartCommand": "bash .devcontainer/setup-env.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma"
+      ]
+    }
+  }
+}
