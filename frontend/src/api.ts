@@ -13,18 +13,18 @@ export function fetchSession(): Promise<User | null> {
 }
 
 export function fetchUpcomingPlans(userId: string): Promise<Event[]> {
-  return get<Event[]>(`/api/events/upcoming-plans?userId=${encodeURIComponent(userId)}`);
+  return get<Event[]>(`/api/plans/upcoming?userId=${encodeURIComponent(userId)}`);
 }
 
 export function fetchRecommendations(userId: string, limit = 10): Promise<Event[]> {
   return get<Event[]>(
-    `/api/events/recommendations?userId=${encodeURIComponent(userId)}&limit=${limit}`,
+    `/api/events/recommended?userId=${encodeURIComponent(userId)}&limit=${limit}`,
   );
 }
 
 export function fetchFriendsEvents(userId: string, limit = 10): Promise<Event[]> {
   return get<Event[]>(
-    `/api/events/friends-events?userId=${encodeURIComponent(userId)}&limit=${limit}`,
+    `/api/events/friends?userId=${encodeURIComponent(userId)}&limit=${limit}`,
   );
 }
 
