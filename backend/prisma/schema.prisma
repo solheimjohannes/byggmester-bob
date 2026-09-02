@@ -33,6 +33,7 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
+  bio           String?
   emailVerified DateTime?
   image         String?
   createdAt     DateTime  @default(now())
