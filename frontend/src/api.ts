@@ -8,6 +8,33 @@ async function get<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json() as T | { error: string; code?: string };
+  if (!res.ok) throw Object.assign(new Error((data as { error: string }).error), { data });
+  return data as T;
+}
+
+export interface RegisterInput { name?: string; email: string; password: string }
+export interface LoginInput { email: string; password: string }
+
+export function register(input: RegisterInput): Promise<User> {
+  return post<User>('/api/auth/register', input);
+}
+
+export function login(input: LoginInput): Promise<User> {
+  return post<User>('/api/auth/login', input);
+}
+
+export function logout(): Promise<{ ok: boolean }> {
+  return post<{ ok: boolean }>('/api/auth/logout', {});
+}
+
 export function fetchSession(): Promise<User | null> {
   return get<User | null>('/api/auth/session').catch(() => null);
 }
