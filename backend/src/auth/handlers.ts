@@ -46,14 +46,17 @@ export const loginHandler: RequestHandler = async (req, res) => {
     throw e;
   }
 
-  const user = await verifyCredentials(parsed.email, parsed.password);
-  if (!user) {
-    res.status(401).json({ error: 'Invalid email or password', code: 'INVALID_CREDENTIALS' });
-    return;
+  try {
+    const user = await verifyCredentials(parsed.email, parsed.password);
+    if (!user) {
+      res.status(401).json({ error: 'Invalid email or password', code: 'INVALID_CREDENTIALS' });
+      return;
+    }
+    req.session.userId = user.id;
+    res.json(user);
+  } catch {
+    res.status(500).json({ error: 'Login failed', code: 'INTERNAL_ERROR' });
   }
-
-  req.session.userId = user.id;
-  res.json(user);
 };
 
 export const logoutHandler: RequestHandler = (req, res) => {
@@ -68,6 +71,10 @@ export const sessionHandler: RequestHandler = async (req, res) => {
     res.json(null);
     return;
   }
-  const user = await getUserById(req.session.userId);
-  res.json(user ?? null);
+  try {
+    const user = await getUserById(req.session.userId);
+    res.json(user ?? null);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch session', code: 'INTERNAL_ERROR' });
+  }
 };
