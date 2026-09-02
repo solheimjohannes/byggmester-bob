@@ -2,6 +2,7 @@ import express from 'express';
 import session from 'express-session';
 import {
   getUpcomingPlansForUser,
+  getEventsCreatedByUser,
   getRecommendedEvents,
   getFriendsEvents,
   searchEvents,
@@ -70,6 +71,21 @@ app.get('/api/plans/upcoming', async (req, res) => {
     res.json(events);
   } catch {
     res.status(500).json({ error: 'Failed to fetch upcoming plans', code: 'INTERNAL_ERROR' });
+  }
+});
+
+// Created events: all events the user has created, sorted by startAt descending.
+app.get('/api/events/created', async (req, res) => {
+  const { userId } = req.query;
+  if (typeof userId !== 'string' || !userId) {
+    res.status(400).json({ error: 'userId is required', code: 'INVALID_INPUT' });
+    return;
+  }
+  try {
+    const events = await getEventsCreatedByUser(userId);
+    res.json(events);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch created events', code: 'INTERNAL_ERROR' });
   }
 });
 

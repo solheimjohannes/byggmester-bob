@@ -11,6 +11,7 @@ vi.mock('../lib/prisma', () => ({
 import { prisma } from '../lib/prisma';
 import {
   getUpcomingPlansForUser,
+  getEventsCreatedByUser,
   getRecommendedEvents,
   getFriendsEvents,
   searchEvents,
@@ -119,6 +120,54 @@ describe('getUpcomingPlansForUser', () => {
 
   it('throws on blank userId', async () => {
     await expect(getUpcomingPlansForUser('')).rejects.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getEventsCreatedByUser
+// ---------------------------------------------------------------------------
+
+describe('getEventsCreatedByUser', () => {
+  it('returns all events where createdById matches', async () => {
+    const event = makeEvent({ createdById: 'user1' });
+    mockPrisma.event.findMany.mockResolvedValue([event]);
+
+    const result = await getEventsCreatedByUser('user1');
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('e1');
+    expect(mockPrisma.event.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { createdById: 'user1' },
+      }),
+    );
+  });
+
+  it('returns empty array when user has created no events', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    const result = await getEventsCreatedByUser('user1');
+
+    expect(result).toEqual([]);
+  });
+
+  it('returns events across all statuses and visibilities', async () => {
+    const draft = makeEvent({ id: 'e-draft', status: 'draft', visibility: 'private', createdById: 'user1' });
+    const published = makeEvent({ id: 'e-pub', status: 'published', createdById: 'user1' });
+    const cancelled = makeEvent({ id: 'e-can', status: 'cancelled', createdById: 'user1' });
+    mockPrisma.event.findMany.mockResolvedValue([draft, published, cancelled]);
+
+    const result = await getEventsCreatedByUser('user1');
+
+    expect(result).toHaveLength(3);
+    // No status or visibility filter applied
+    const call = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(call.where).not.toHaveProperty('status');
+    expect(call.where).not.toHaveProperty('visibility');
+  });
+
+  it('throws on blank userId', async () => {
+    await expect(getEventsCreatedByUser('')).rejects.toThrow();
   });
 });
 

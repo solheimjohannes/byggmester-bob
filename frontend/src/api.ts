@@ -43,6 +43,10 @@ export function fetchUpcomingPlans(userId: string): Promise<Event[]> {
   return get<Event[]>(`/api/plans/upcoming?userId=${encodeURIComponent(userId)}`);
 }
 
+export function fetchCreatedEvents(userId: string): Promise<Event[]> {
+  return get<Event[]>(`/api/events/created?userId=${encodeURIComponent(userId)}`);
+}
+
 export function fetchRecommendations(userId: string, limit = 10): Promise<Event[]> {
   return get<Event[]>(
     `/api/events/recommended?userId=${encodeURIComponent(userId)}&limit=${limit}`,
