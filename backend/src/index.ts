@@ -103,6 +103,14 @@ app.use(
   }),
 );
 
+// TODO: MOCK SESSION — remove this block before production
+// Injects a mock userId so protected routes work without a real login for demo purposes.
+const MOCK_SESSION_USER_ID = '00000000-0000-0000-0000-000000000001';
+app.use((req, _res, next) => {
+  if (!req.session.userId) req.session.userId = MOCK_SESSION_USER_ID;
+  next();
+});
+
 /*
  * Health check
  */
