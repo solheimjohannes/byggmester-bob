@@ -166,6 +166,18 @@ describe('getEventsCreatedByUser', () => {
     expect(call.where).not.toHaveProperty('visibility');
   });
 
+  it('includes venue and attendee count in the query', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    await getEventsCreatedByUser('user1');
+
+    const call = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(call.include).toMatchObject({
+      venue: true,
+      _count: { select: { attendees: true } },
+    });
+  });
+
   it('throws on blank userId', async () => {
     await expect(getEventsCreatedByUser('')).rejects.toThrow();
   });

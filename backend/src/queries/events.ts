@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 
@@ -138,16 +139,25 @@ export async function getFriendsEvents(userId: string, limit = 10) {
   });
 }
 
+const GET_EVENTS_CREATED_BY_USER_INCLUDE = {
+  venue: true,
+  _count: { select: { attendees: true } },
+} satisfies Prisma.EventInclude;
+
+export type UserCreatedEvent = Prisma.EventGetPayload<{
+  include: typeof GET_EVENTS_CREATED_BY_USER_INCLUDE;
+}>;
+
 /**
  * Returns all events created by the user, sorted by startAt descending.
  * Includes all statuses and visibilities — the caller is the creator.
  */
-export async function getEventsCreatedByUser(userId: string) {
+export async function getEventsCreatedByUser(userId: string): Promise<UserCreatedEvent[]> {
   userIdSchema.parse(userId);
 
   return prisma.event.findMany({
     where: { createdById: userId },
-    include: { venue: true },
+    include: GET_EVENTS_CREATED_BY_USER_INCLUDE,
     orderBy: { startAt: 'desc' },
   });
 }
