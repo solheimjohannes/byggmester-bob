@@ -117,6 +117,20 @@ export function updateEvent(id: string, input: UpdateEventInput): Promise<Event>
   return patch<Event>(`/api/events/${encodeURIComponent(id)}`, input);
 }
 
+export interface FetchPublicEventsParams {
+  q?: string;
+  city?: string;
+  limit?: number;
+}
+
+export function fetchPublicEvents({ q, city, limit = 50 }: FetchPublicEventsParams = {}): Promise<Event[]> {
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (city) params.set('city', city);
+  params.set('limit', String(limit));
+  return get<Event[]>(`/api/events/public?${params.toString()}`);
+}
+
 export function formatEventDate(isoString: string, timezone: string): string {
   try {
     return new Intl.DateTimeFormat('en-GB', {
