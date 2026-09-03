@@ -9,6 +9,8 @@ import {
   searchEvents,
 } from './queries/events';
 import { createEvent, createEventSchema, EndBeforeStartError } from './queries/createEvent';
+import { getEvent } from './queries/getEvent';
+import { updateEvent, updateEventSchema } from './queries/updateEvent';
 import {
   registerHandler,
   loginHandler,
@@ -26,7 +28,7 @@ app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Origin', CORS_ORIGIN);
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
   next();
 });
 
@@ -178,6 +180,73 @@ app.get('/api/events/search', async (req, res) => {
     res.json(events);
   } catch {
     res.status(500).json({ error: 'Failed to search events', code: 'INTERNAL_ERROR' });
+  }
+});
+
+// Single event: public events are open; private events visible only to their creator.
+app.get('/api/events/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const event = await getEvent(id);
+    if (!event) {
+      res.status(404).json({ error: 'Event not found', code: 'NOT_FOUND' });
+      return;
+    }
+    if (event.visibility === 'private' && req.session.userId !== event.createdById) {
+      res.status(404).json({ error: 'Event not found', code: 'NOT_FOUND' });
+      return;
+    }
+    res.json(event);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch event', code: 'INTERNAL_ERROR' });
+  }
+});
+
+// Update event: requires an authenticated session and ownership.
+app.patch('/api/events/:id', async (req, res) => {
+  if (!req.session.userId) {
+    res.status(401).json({ error: 'Authentication required', code: 'UNAUTHENTICATED' });
+    return;
+  }
+
+  const { id } = req.params;
+
+  let existing;
+  try {
+    existing = await getEvent(id);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch event', code: 'INTERNAL_ERROR' });
+    return;
+  }
+  if (!existing) {
+    res.status(404).json({ error: 'Event not found', code: 'NOT_FOUND' });
+    return;
+  }
+  if (existing.createdById !== req.session.userId) {
+    res.status(403).json({ error: 'Forbidden', code: 'FORBIDDEN' });
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = updateEventSchema.parse(req.body);
+  } catch (e) {
+    if (e instanceof ZodError) {
+      res.status(400).json({ error: e.errors[0].message, code: 'INVALID_INPUT' });
+      return;
+    }
+    throw e;
+  }
+
+  try {
+    const event = await updateEvent(id, parsed);
+    res.json(event);
+  } catch (err) {
+    if (err instanceof EndBeforeStartError) {
+      res.status(400).json({ error: err.message, code: err.code });
+      return;
+    }
+    throw err;
   }
 });
 
