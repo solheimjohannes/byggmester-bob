@@ -17,6 +17,7 @@ export interface Event {
   status: 'draft' | 'published' | 'cancelled';
   createdById: string;
   maxAttendees: number | null;
+  attendeeCount?: number;
 }
 
 export interface User {
