@@ -15,6 +15,7 @@ import {
   getRecommendedEvents,
   getFriendsEvents,
   searchEvents,
+  getPublicEvents,
 } from './events';
 
 const mockPrisma = vi.mocked(prisma, true);
@@ -303,6 +304,91 @@ describe('getFriendsEvents', () => {
 
     const eventQuery = mockPrisma.event.findMany.mock.calls[0][0];
     expect(eventQuery.where.attendees.some.userId.in).toContain('friend2');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPublicEvents
+// ---------------------------------------------------------------------------
+
+describe('getPublicEvents', () => {
+  it('returns all upcoming public published events when called with no filters', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([makeEvent()]);
+
+    const result = await getPublicEvents();
+
+    expect(result).toHaveLength(1);
+    const q = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(q.where.visibility).toBe('public');
+    expect(q.where.status).toBe('published');
+    expect(q.where.startAt).toEqual(expect.objectContaining({ gt: expect.any(Date) }));
+    expect(q.where).not.toHaveProperty('OR');
+    expect(q.where).not.toHaveProperty('venue');
+  });
+
+  it('applies OR text filter when q is provided', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([makeEvent({ title: 'Jazz Night' })]);
+
+    await getPublicEvents({ q: 'jazz' });
+
+    const q = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(q.where.OR).toHaveLength(3);
+    expect(q.where.OR[0].title).toEqual({ contains: 'jazz', mode: 'insensitive' });
+  });
+
+  it('applies city filter when city is provided', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([makeEvent()]);
+
+    await getPublicEvents({ city: 'Oslo' });
+
+    const q = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(q.where.venue).toEqual({
+      city: { contains: 'Oslo', mode: 'insensitive' },
+    });
+  });
+
+  it('applies both q and city filters together', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    await getPublicEvents({ q: 'jazz', city: 'Oslo' });
+
+    const q = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(q.where.OR).toBeDefined();
+    expect(q.where.venue).toBeDefined();
+  });
+
+  it('ignores blank q (no OR clause added)', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    await getPublicEvents({ q: '   ' });
+
+    const q = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(q.where).not.toHaveProperty('OR');
+  });
+
+  it('never returns private events', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    await getPublicEvents();
+
+    const q = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(q.where.visibility).toBe('public');
+  });
+
+  it('returns empty array when no upcoming public events exist', async () => {
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    const result = await getPublicEvents();
+
+    expect(result).toEqual([]);
+  });
+
+  it('throws on invalid limit (zero)', async () => {
+    await expect(getPublicEvents({ limit: 0 })).rejects.toThrow();
+  });
+
+  it('throws on q longer than 200 characters', async () => {
+    await expect(getPublicEvents({ q: 'a'.repeat(201) })).rejects.toThrow();
   });
 });
 
