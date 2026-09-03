@@ -161,7 +161,7 @@ app.get('/api/events/created', async (req, res) => {
 
   try {
     const events = await getEventsCreatedByUser(userId);
-    res.json(events);
+    res.json(events.map(({ _count, ...e }) => ({ ...e, attendeeCount: _count.attendees })));
   } catch {
     res.status(500).json({
       error: 'Failed to fetch created events',
