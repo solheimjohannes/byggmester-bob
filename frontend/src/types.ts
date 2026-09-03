@@ -15,6 +15,8 @@ export interface Event {
   visibility: 'public' | 'private';
   venue: Venue | null;
   status: 'draft' | 'published' | 'cancelled';
+  createdById: string;
+  maxAttendees: number | null;
 }
 
 export interface User {

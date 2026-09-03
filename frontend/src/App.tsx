@@ -11,6 +11,8 @@ import { Header } from './components/Header';
 import { useAuth } from './context/useAuth';
 import CalendarPage from './pages/CalendarPage';
 import CreateEventPage from './pages/CreateEventPage';
+import EditEventPage from './pages/EditEventPage';
+import EventDetailPage from './pages/EventDetailPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
@@ -110,6 +112,8 @@ export default function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/events/create" element={<CreateEventPage />} />
+        <Route path="/events/:id/edit" element={<EditEventPage />} />
+        <Route path="/events/:id" element={<EventDetailPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/register" element={<RegisterPage />} />
