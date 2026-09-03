@@ -8,8 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INFRA_DIR="$SCRIPT_DIR/../infra/terraform"
 
 ENVIRONMENT="${ENVIRONMENT:-production}"
-RESOURCE_GROUP="${RESOURCE_GROUP:-rg-byggmester}"
-LOCATION="${LOCATION:-norwayeast}"
+RESOURCE_GROUP="${RESOURCE_GROUP:-byggmester-bob-rg}"
+LOCATION="${LOCATION:-swedencentral}"
 
 echo "==> Deploying PostgreSQL to environment: $ENVIRONMENT"
 echo "==> Resource group: $RESOURCE_GROUP | Location: $LOCATION"
