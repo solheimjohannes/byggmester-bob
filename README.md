@@ -54,6 +54,15 @@ npm run build
 npm run preview
 ```
 
+## MVP demo mode
+
+The app currently runs with a mock session and mock data for demo purposes.
+
+To revert to real auth and backend:
+1. Search for `TODO: MOCK SESSION` and restore real session calls
+2. Search for `TODO: MOCK DATA` and restore real query imports
+3. Ensure `DATABASE_URL` and `SESSION_SECRET` are set in `backend/.env`
+
 ## Environment variables
 
 | File | Variable | Description |
