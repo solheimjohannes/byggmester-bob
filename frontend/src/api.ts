@@ -37,6 +37,18 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   return data as T;
 }
 
+async function patch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json() as T | { error: string; code?: string };
+  if (!res.ok) throw Object.assign(new Error((data as { error: string }).error), { data });
+  return data as T;
+}
+
 export interface RegisterInput { name?: string; email: string; password: string }
 export interface LoginInput { email: string; password: string }
 
@@ -84,6 +96,25 @@ export function searchEvents(query: string, limit = 20): Promise<Event[]> {
 
 export function createEvent(input: CreateEventInput): Promise<Event> {
   return post<Event>('/api/events', input);
+}
+
+export interface UpdateEventInput {
+  title: string;
+  description?: string;
+  startAt: string;
+  endAt: string;
+  timezone: string;
+  venue?: VenueInput;
+  maxAttendees?: number;
+  visibility: 'public' | 'private';
+}
+
+export function fetchEvent(id: string): Promise<Event> {
+  return get<Event>(`/api/events/${encodeURIComponent(id)}`);
+}
+
+export function updateEvent(id: string, input: UpdateEventInput): Promise<Event> {
+  return patch<Event>(`/api/events/${encodeURIComponent(id)}`, input);
 }
 
 export function formatEventDate(isoString: string, timezone: string): string {

@@ -1,0 +1,217 @@
+.event-detail-page {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 24px 80px;
+}
+
+.event-detail-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 48px;
+  width: 100%;
+  max-width: 640px;
+}
+
+/* Top bar: badges + edit button */
+.event-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  min-height: 32px;
+}
+
+.event-detail-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.event-detail-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-badge);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.event-detail-badge--private {
+  background: var(--color-yellow-light);
+  color: #7a5c00;
+}
+
+.event-detail-badge--draft {
+  background: #f0f0f0;
+  color: var(--color-text-secondary);
+}
+
+.event-detail-badge--cancelled {
+  background: #fce8e6;
+  color: var(--color-error);
+}
+
+/* Title */
+.event-detail-title {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 32px;
+}
+
+/* Info rows */
+.event-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.event-detail-info-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.event-detail-info-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.event-detail-info-value {
+  font-size: 15px;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+
+.event-detail-tz {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+/* Description */
+.event-detail-description {
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.event-detail-description__heading {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+
+.event-detail-description__text {
+  font-size: 15px;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* Bottom actions */
+.event-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Error state */
+.event-detail-error {
+  background: #fce8e6;
+  border: 1px solid var(--color-error);
+  border-radius: 8px;
+  color: var(--color-error);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+/* Loading skeleton */
+.event-detail-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.event-detail-skeleton__line {
+  background: linear-gradient(90deg, var(--color-border) 25%, #f5f0e8 50%, var(--color-border) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite;
+  border-radius: 8px;
+}
+
+.event-detail-skeleton__line--title {
+  height: 44px;
+  width: 70%;
+}
+
+.event-detail-skeleton__line--meta {
+  height: 18px;
+  width: 55%;
+}
+
+.event-detail-skeleton__line--meta-short {
+  height: 18px;
+  width: 40%;
+}
+
+.event-detail-skeleton__line--body {
+  height: 14px;
+  width: 100%;
+}
+
+.event-detail-skeleton__line--body-short {
+  height: 14px;
+  width: 80%;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .event-detail-page {
+    padding: 24px 16px 64px;
+  }
+
+  .event-detail-card {
+    padding: 28px 20px;
+  }
+
+  .event-detail-title {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+
+  .event-detail-info-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .event-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
