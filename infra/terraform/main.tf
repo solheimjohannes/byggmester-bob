@@ -8,6 +8,11 @@ locals {
 
 data "azurerm_client_config" "current" {}
 
+import {
+  to = azurerm_resource_group.main
+  id = "/subscriptions/20a59723-c6b2-4aa6-bb67-a8c62bf51b0a/resourceGroups/byggmester-bob-rg"
+}
+
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
