@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { fetchEvent, formatEventDate } from '../api';
+import { formatEventDate } from '../api';
 import { useAuth } from '../context/useAuth';
+// TODO: MOCK DATA — replace with real query before production
+import { getEventById } from '../lib/mock/queries';
 import type { Event, FetchState } from '../types';
 import './EventDetailPage.css';
 
@@ -12,8 +14,14 @@ export default function EventDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    fetchEvent(id)
-      .then((data) => setState({ status: 'ok', data }))
+    getEventById(id)
+      .then((data) => {
+        if (!data) {
+          setState({ status: 'error', message: 'Event not found.' });
+          return;
+        }
+        setState({ status: 'ok', data });
+      })
       .catch(() => setState({ status: 'error', message: 'Failed to load event. It may not exist or you may not have permission to view it.' }));
   }, [id]);
 

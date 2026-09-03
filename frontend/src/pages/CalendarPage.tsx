@@ -1,6 +1,8 @@
 import { useMemo, useEffect, useState } from 'react';
-import { fetchUpcomingPlans, formatEventDate } from '../api';
+import { formatEventDate } from '../api';
 import { EventCard } from '../components/EventCard';
+// TODO: MOCK DATA — replace with real query before production
+import { fetchCalendarEvents } from '../lib/mock/queries';
 import { EventModule } from '../components/EventModule';
 import { useAuth } from '../context/useAuth';
 import type { Event, FetchState } from '../types';
@@ -162,7 +164,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     if (!user) return;
-    fetchUpcomingPlans(user.id)
+    fetchCalendarEvents(user.id)
       .then((data) => setPlansState({ status: 'ok', data }))
       .catch((e: unknown) =>
         setPlansState({
