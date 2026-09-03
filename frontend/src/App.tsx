@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
+// TODO: MOCK DATA — replace with real query imports from './api' before production
 import {
   fetchFriendsEvents,
   fetchRecommendations,
   fetchUpcomingPlans,
-} from './api';
+} from './lib/mock/queries';
 import { EventCard } from './components/EventCard';
 import { EventModule } from './components/EventModule';
 import { Header } from './components/Header';
