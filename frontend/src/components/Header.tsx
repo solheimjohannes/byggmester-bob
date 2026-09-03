@@ -173,6 +173,11 @@ export function Header() {
                         </a>
                       </li>
                       <li>
+                        <a href="/recommended" className="site-header__menu-link">
+                          Recommended
+                        </a>
+                      </li>
+                      <li>
                         <button
                           className="site-header__menu-link site-header__menu-logout"
                           onClick={() => {
