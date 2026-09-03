@@ -86,6 +86,7 @@ describe('getUpcomingPlansForUser', () => {
   it('returns event objects from confirmed future attendances', async () => {
     const event = makeEvent();
     mockPrisma.attendee.findMany.mockResolvedValue([makeAttendee({ event })]);
+    mockPrisma.event.findMany.mockResolvedValue([]);
 
     const result = await getUpcomingPlansForUser('user1');
 
@@ -101,22 +102,71 @@ describe('getUpcomingPlansForUser', () => {
     );
   });
 
+  it('returns events the user created even without an RSVP', async () => {
+    const created = makeEvent({ id: 'created1', createdById: 'user1' });
+    mockPrisma.attendee.findMany.mockResolvedValue([]);
+    mockPrisma.event.findMany.mockResolvedValue([created]);
+
+    const result = await getUpcomingPlansForUser('user1');
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('created1');
+  });
+
+  it('deduplicates when user is both creator and confirmed attendee', async () => {
+    const event = makeEvent({ id: 'e1', createdById: 'user1' });
+    mockPrisma.event.findMany.mockResolvedValue([event]);
+    mockPrisma.attendee.findMany.mockResolvedValue([makeAttendee({ event })]);
+
+    const result = await getUpcomingPlansForUser('user1');
+
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe('e1');
+  });
+
   it('returns empty array when user has no upcoming confirmed attendances', async () => {
     mockPrisma.attendee.findMany.mockResolvedValue([]);
+    mockPrisma.event.findMany.mockResolvedValue([]);
 
     const result = await getUpcomingPlansForUser('user1');
 
     expect(result).toEqual([]);
   });
 
-  it('queries with a future-only filter on event startAt', async () => {
+  it('queries attendees with a future-only filter on event startAt', async () => {
     mockPrisma.attendee.findMany.mockResolvedValue([]);
+    mockPrisma.event.findMany.mockResolvedValue([]);
 
     await getUpcomingPlansForUser('user1');
 
     const call = mockPrisma.attendee.findMany.mock.calls[0][0];
     expect(call.where.event.startAt).toEqual(expect.objectContaining({ gt: expect.any(Date) }));
     expect(call.where.event.status).toEqual({ not: 'cancelled' });
+  });
+
+  it('queries created events with a future-only filter on startAt', async () => {
+    mockPrisma.attendee.findMany.mockResolvedValue([]);
+    mockPrisma.event.findMany.mockResolvedValue([]);
+
+    await getUpcomingPlansForUser('user1');
+
+    const call = mockPrisma.event.findMany.mock.calls[0][0];
+    expect(call.where.createdById).toBe('user1');
+    expect(call.where.startAt).toEqual(expect.objectContaining({ gt: expect.any(Date) }));
+    expect(call.where.status).toEqual({ not: 'cancelled' });
+  });
+
+  it('sorts merged results by startAt ascending', async () => {
+    const soon = makeEvent({ id: 'e-soon', startAt: new Date(Date.now() + 86400_000) });
+    const later = makeEvent({ id: 'e-later', startAt: new Date(Date.now() + 172800_000) });
+    // created: later first, attendee: soon
+    mockPrisma.event.findMany.mockResolvedValue([later]);
+    mockPrisma.attendee.findMany.mockResolvedValue([makeAttendee({ event: soon })]);
+
+    const result = await getUpcomingPlansForUser('user1');
+
+    expect(result[0].id).toBe('e-soon');
+    expect(result[1].id).toBe('e-later');
   });
 
   it('throws on blank userId', async () => {

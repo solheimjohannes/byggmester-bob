@@ -6,30 +6,62 @@ const userIdSchema = z.string().min(1, 'userId is required');
 const limitSchema = z.number().int().min(1).max(100);
 
 /**
- * Returns upcoming events the user has confirmed attendance for,
- * sorted soonest-first, excluding cancelled events.
+ * Returns upcoming events relevant to the user:
+ *   - events the user created (any visibility, non-cancelled)
+ *   - events the user has a confirmed RSVP for
+ * Results are deduplicated (creator + attendee → one entry) and sorted soonest-first.
  */
 export async function getUpcomingPlansForUser(userId: string) {
   userIdSchema.parse(userId);
 
-  const attendees = await prisma.attendee.findMany({
-    where: {
-      userId,
-      status: 'confirmed',
-      event: {
-        startAt: { gt: new Date() },
+  const now = new Date();
+
+  const [attendees, createdEvents] = await Promise.all([
+    prisma.attendee.findMany({
+      where: {
+        userId,
+        status: 'confirmed',
+        event: {
+          startAt: { gt: now },
+          status: { not: 'cancelled' },
+        },
+      },
+      include: {
+        event: { include: { venue: true } },
+      },
+      orderBy: { event: { startAt: 'asc' } },
+    }),
+    prisma.event.findMany({
+      where: {
+        createdById: userId,
+        startAt: { gt: now },
         status: { not: 'cancelled' },
       },
-    },
-    include: {
-      event: {
-        include: { venue: true },
-      },
-    },
-    orderBy: { event: { startAt: 'asc' } },
-  });
+      include: { venue: true },
+      orderBy: { startAt: 'asc' },
+    }),
+  ]);
 
-  return attendees.map((a) => a.event);
+  const seen = new Set<string>();
+  const merged: (typeof createdEvents)[number][] = [];
+
+  for (const event of createdEvents) {
+    if (!seen.has(event.id)) {
+      seen.add(event.id);
+      merged.push(event);
+    }
+  }
+
+  for (const attendee of attendees) {
+    if (!seen.has(attendee.event.id)) {
+      seen.add(attendee.event.id);
+      merged.push(attendee.event);
+    }
+  }
+
+  merged.sort((a, b) => a.startAt.getTime() - b.startAt.getTime());
+
+  return merged;
 }
 
 /**
