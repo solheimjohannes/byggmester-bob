@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { fetchPublicEvents } from '../api';
+// TODO: MOCK DATA — replace with real query import from '../api' before production
+import { fetchPublicEvents } from '../lib/mock/queries';
 import { EventCard } from '../components/EventCard';
 import { SkeletonCard } from '../components/SkeletonCard';
 import type { Event, FetchState } from '../types';

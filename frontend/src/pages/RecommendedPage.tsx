@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchRecommendations } from '../api';
+// TODO: MOCK DATA — replace with real query import from '../api' before production
+import { fetchRecommendations } from '../lib/mock/queries';
 import { EventCard } from '../components/EventCard';
 import { SkeletonCard } from '../components/SkeletonCard';
 import { useAuth } from '../context/useAuth';

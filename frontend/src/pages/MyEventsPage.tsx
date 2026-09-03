@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchCreatedEvents } from '../api';
+// TODO: MOCK DATA — replace with real query import from '../api' before production
+import { fetchCreatedEvents } from '../lib/mock/queries';
 import { MyEventCard } from '../components/MyEventCard';
 import { useAuth } from '../context/useAuth';
 import type { Event, FetchState } from '../types';
