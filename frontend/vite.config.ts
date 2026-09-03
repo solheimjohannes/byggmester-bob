@@ -8,7 +8,7 @@ export default defineConfig({
     // Bind to 0.0.0.0 so the Codespaces port-forwarding proxy can reach the
     // dev server (default localhost/127.0.0.1 is unreachable from outside).
     host: true,
-    allowedHosts: ["slazbob01app.swedencentral.cloudapp.azure.com"],
+    allowedHosts: ["slazbob01app.swedencentral.cloudapp.azure.com", "bobsplan.duckdns.org"],
     proxy: {
       // Route /api and /health to the backend so the browser stays on a single
       // origin. This avoids cross-site cookie issues with sameSite: 'lax' when
