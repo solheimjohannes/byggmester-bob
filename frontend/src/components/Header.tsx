@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { formatEventDate, logout, searchEvents } from '../api';
 import { useAuth } from '../context/useAuth';
 import type { Event } from '../types';
@@ -6,6 +7,7 @@ import './Header.css';
 
 export function Header() {
   const { user, setUser } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Event[]>([]);
@@ -54,6 +56,16 @@ export function Header() {
     }, 350);
   }, []);
 
+  const handleSearchKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && query.trim()) {
+        clearSearchDropdown();
+        void navigate(`/browse?q=${encodeURIComponent(query.trim())}`);
+      }
+    },
+    [query, clearSearchDropdown, navigate],
+  );
+
   const showDropdown = query.trim().length > 0;
 
   const initials = user?.name
@@ -79,6 +91,7 @@ export function Header() {
             placeholder="Search events, places…"
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
             onBlur={() => window.setTimeout(clearSearchDropdown, 150)}
             aria-label="Search events"
             aria-expanded={showDropdown}

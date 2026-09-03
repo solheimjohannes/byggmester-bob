@@ -117,6 +117,12 @@ export function updateEvent(id: string, input: UpdateEventInput): Promise<Event>
   return patch<Event>(`/api/events/${encodeURIComponent(id)}`, input);
 }
 
+export function fetchPublicEvents(q?: string, limit = 50): Promise<Event[]> {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (q) params.set('q', q);
+  return get<Event[]>(`/api/events/public?${params.toString()}`);
+}
+
 export function formatEventDate(isoString: string, timezone: string): string {
   try {
     return new Intl.DateTimeFormat('en-GB', {
