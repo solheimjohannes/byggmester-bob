@@ -1,4 +1,5 @@
 import express, { type NextFunction, type Request, type Response } from 'express';
+import cors from 'cors';
 import session from 'express-session';
 import { ZodError } from 'zod';
 import {
@@ -23,6 +24,11 @@ const PORT = process.env.PORT || 3001;
 
 // Permissive CORS for local dev; tighten CORS_ORIGIN env var for production.
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
+
+app.use(cors({
+  origin: 'https://calm-meadow-0ce3be403.3.azurestaticapps.net',
+  credentials: true, // needed since you have a /session endpoint, which suggests cookie-based sessions
+}));
 
 app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Origin', CORS_ORIGIN);
