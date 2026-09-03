@@ -88,6 +88,20 @@ export function fetchFriendsEvents(userId: string, limit = 10): Promise<Event[]>
   );
 }
 
+export interface FetchPublicEventsParams {
+  q?: string;
+  city?: string;
+  limit?: number;
+}
+
+export function fetchPublicEvents({ q, city, limit = 50 }: FetchPublicEventsParams = {}): Promise<Event[]> {
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (city) params.set('city', city);
+  params.set('limit', String(limit));
+  return get<Event[]>(`/api/events/public?${params.toString()}`);
+}
+
 export function searchEvents(query: string, limit = 20): Promise<Event[]> {
   return get<Event[]>(
     `/api/events/search?q=${encodeURIComponent(query)}&limit=${limit}`,

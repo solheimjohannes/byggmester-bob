@@ -1,5 +1,6 @@
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 
 const userIdSchema = z.string().min(1, 'userId is required');
@@ -159,6 +160,53 @@ export async function getEventsCreatedByUser(userId: string): Promise<UserCreate
     where: { createdById: userId },
     include: GET_EVENTS_CREATED_BY_USER_INCLUDE,
     orderBy: { startAt: 'desc' },
+  });
+}
+
+const querySchema = z.string().max(200);
+
+export interface GetPublicEventsParams {
+  q?: string;
+  limit?: number;
+}
+
+/**
+ * Returns all upcoming public, published events with optional q filter.
+ * q searches title, description, venue name, and venue city (case-insensitive).
+ * Returns all events when q is absent or blank. Never returns private events.
+ * Sorted soonest-first.
+ */
+export async function getPublicEvents({
+  q,
+  limit = 50,
+}: GetPublicEventsParams = {}) {
+  if (q !== undefined) querySchema.parse(q);
+  limitSchema.parse(limit);
+
+  const now = new Date();
+  const trimmed = q?.trim();
+
+  const where: Prisma.EventWhereInput = {
+    visibility: 'public',
+    status: 'published',
+    startAt: { gt: now },
+    ...(trimmed
+      ? {
+          OR: [
+            { title: { contains: trimmed, mode: 'insensitive' } },
+            { description: { contains: trimmed, mode: 'insensitive' } },
+            { venue: { name: { contains: trimmed, mode: 'insensitive' } } },
+            { venue: { city: { contains: trimmed, mode: 'insensitive' } } },
+          ],
+        }
+      : {}),
+  };
+
+  return prisma.event.findMany({
+    where,
+    include: { venue: true },
+    orderBy: { startAt: 'asc' },
+    take: limit,
   });
 }
 

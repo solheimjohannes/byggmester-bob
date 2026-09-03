@@ -9,6 +9,7 @@ import {
   getRecommendedEvents,
   getFriendsEvents,
   searchEvents,
+  getPublicEvents,
 } from './queries/events';
 
 import {
@@ -303,6 +304,41 @@ app.post('/api/events', async (req, res) => {
     }
 
     throw err;
+  }
+});
+
+/*
+ * Browse all public events (with optional q and city filters)
+ */
+app.get('/api/events/public', async (req, res) => {
+  const { q, limit: limitStr } = req.query;
+
+  if (q !== undefined && typeof q !== 'string') {
+    res.status(400).json({ error: 'q must be a string', code: 'INVALID_INPUT' });
+    return;
+  }
+
+  const limit = limitStr !== undefined ? Number(limitStr) : 50;
+
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) {
+    res.status(400).json({
+      error: 'limit must be an integer between 1 and 100',
+      code: 'INVALID_INPUT',
+    });
+    return;
+  }
+
+  try {
+    const events = await getPublicEvents({
+      q: typeof q === 'string' ? q : undefined,
+      limit,
+    });
+    res.json(events);
+  } catch {
+    res.status(500).json({
+      error: 'Failed to fetch public events',
+      code: 'INTERNAL_ERROR',
+    });
   }
 });
 
