@@ -19,7 +19,9 @@ resource "azurerm_resource_group" "main" {
 resource "random_password" "db_admin" {
   length           = 40
   special          = true
-  override_special = "!#%&*()-_=+[]{}:?"
+  # Restricted to URL-safe special chars only (RFC 3986 unreserved: - . _ ~).
+  # Characters like #, %, ?, &, @, / are URL-reserved and break Prisma's connection URL parser.
+  override_special = "-._~"
   min_upper        = 4
   min_lower        = 4
   min_numeric      = 4
