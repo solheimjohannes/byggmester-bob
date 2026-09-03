@@ -17,7 +17,7 @@ import {
 } from './auth/handlers';
 
 const app = express();
-const PORT = process.env.PORT ?? 3001;
+const PORT = process.env.PORT || 3001;
 
 // Permissive CORS for local dev; tighten CORS_ORIGIN env var for production.
 const CORS_ORIGIN = process.env.CORS_ORIGIN ?? 'http://localhost:5173';
