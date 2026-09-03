@@ -326,35 +326,17 @@ describe('getPublicEvents', () => {
     expect(q.where).not.toHaveProperty('venue');
   });
 
-  it('applies OR text filter when q is provided', async () => {
+  it('applies OR text filter across title, description, venue name, and venue city when q is provided', async () => {
     mockPrisma.event.findMany.mockResolvedValue([makeEvent({ title: 'Jazz Night' })]);
 
     await getPublicEvents({ q: 'jazz' });
 
     const q = mockPrisma.event.findMany.mock.calls[0][0];
-    expect(q.where.OR).toHaveLength(3);
+    expect(q.where.OR).toHaveLength(4);
     expect(q.where.OR[0].title).toEqual({ contains: 'jazz', mode: 'insensitive' });
-  });
-
-  it('applies city filter when city is provided', async () => {
-    mockPrisma.event.findMany.mockResolvedValue([makeEvent()]);
-
-    await getPublicEvents({ city: 'Oslo' });
-
-    const q = mockPrisma.event.findMany.mock.calls[0][0];
-    expect(q.where.venue).toEqual({
-      city: { contains: 'Oslo', mode: 'insensitive' },
-    });
-  });
-
-  it('applies both q and city filters together', async () => {
-    mockPrisma.event.findMany.mockResolvedValue([]);
-
-    await getPublicEvents({ q: 'jazz', city: 'Oslo' });
-
-    const q = mockPrisma.event.findMany.mock.calls[0][0];
-    expect(q.where.OR).toBeDefined();
-    expect(q.where.venue).toBeDefined();
+    expect(q.where.OR[1].description).toEqual({ contains: 'jazz', mode: 'insensitive' });
+    expect(q.where.OR[2].venue.name).toEqual({ contains: 'jazz', mode: 'insensitive' });
+    expect(q.where.OR[3].venue.city).toEqual({ contains: 'jazz', mode: 'insensitive' });
   });
 
   it('ignores blank q (no OR clause added)', async () => {

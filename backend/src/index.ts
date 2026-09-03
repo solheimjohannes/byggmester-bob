@@ -311,15 +311,10 @@ app.post('/api/events', async (req, res) => {
  * Browse all public events (with optional q and city filters)
  */
 app.get('/api/events/public', async (req, res) => {
-  const { q, city, limit: limitStr } = req.query;
+  const { q, limit: limitStr } = req.query;
 
   if (q !== undefined && typeof q !== 'string') {
     res.status(400).json({ error: 'q must be a string', code: 'INVALID_INPUT' });
-    return;
-  }
-
-  if (city !== undefined && typeof city !== 'string') {
-    res.status(400).json({ error: 'city must be a string', code: 'INVALID_INPUT' });
     return;
   }
 
@@ -336,7 +331,6 @@ app.get('/api/events/public', async (req, res) => {
   try {
     const events = await getPublicEvents({
       q: typeof q === 'string' ? q : undefined,
-      city: typeof city === 'string' ? city : undefined,
       limit,
     });
     res.json(events);

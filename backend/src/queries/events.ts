@@ -153,50 +153,44 @@ export async function getEventsCreatedByUser(userId: string) {
   });
 }
 
-const citySchema = z.string().max(100);
 const querySchema = z.string().max(200);
 
 export interface GetPublicEventsParams {
   q?: string;
-  city?: string;
   limit?: number;
 }
 
 /**
- * Returns all upcoming public, published events with optional filtering.
- * Filters: q (title/description/venue name, case-insensitive), city (venue.city).
- * Never returns private events. Sorted soonest-first.
+ * Returns all upcoming public, published events with optional q filter.
+ * q searches title, description, venue name, and venue city (case-insensitive).
+ * Returns all events when q is absent or blank. Never returns private events.
+ * Sorted soonest-first.
  */
 export async function getPublicEvents({
   q,
-  city,
   limit = 50,
 }: GetPublicEventsParams = {}) {
   if (q !== undefined) querySchema.parse(q);
-  if (city !== undefined) citySchema.parse(city);
   limitSchema.parse(limit);
 
   const now = new Date();
-  const trimmedQ = q?.trim();
-  const trimmedCity = city?.trim();
+  const trimmed = q?.trim();
 
   const where: Prisma.EventWhereInput = {
     visibility: 'public',
     status: 'published',
     startAt: { gt: now },
+    ...(trimmed
+      ? {
+          OR: [
+            { title: { contains: trimmed, mode: 'insensitive' } },
+            { description: { contains: trimmed, mode: 'insensitive' } },
+            { venue: { name: { contains: trimmed, mode: 'insensitive' } } },
+            { venue: { city: { contains: trimmed, mode: 'insensitive' } } },
+          ],
+        }
+      : {}),
   };
-
-  if (trimmedQ) {
-    where.OR = [
-      { title: { contains: trimmedQ, mode: 'insensitive' } },
-      { description: { contains: trimmedQ, mode: 'insensitive' } },
-      { venue: { name: { contains: trimmedQ, mode: 'insensitive' } } },
-    ];
-  }
-
-  if (trimmedCity) {
-    where.venue = { city: { contains: trimmedCity, mode: 'insensitive' } };
-  }
 
   return prisma.event.findMany({
     where,
