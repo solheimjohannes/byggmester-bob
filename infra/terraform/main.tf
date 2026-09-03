@@ -41,8 +41,6 @@ resource "azurerm_postgresql_flexible_server" "main" {
   storage_mb             = 32768
   sku_name               = var.postgres_sku
   backup_retention_days  = 7
-  zone                   = "1"
-
   # Azure AD auth is on by default on Flexible Server but Prisma requires a plain connection URL.
   # The admin password is stored in Key Vault; the App Service reads it via managed identity.
   # Enabling Azure AD auth at the Entra level is possible but requires a token-refresh shim in
