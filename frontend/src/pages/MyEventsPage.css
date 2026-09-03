@@ -1,0 +1,137 @@
+.my-events-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  flex: 1;
+  width: 100%;
+}
+
+.my-events-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.my-events-header__title {
+  font-size: 36px;
+}
+
+.my-events-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.my-events-section--past {
+  opacity: 0.75;
+}
+
+.my-events-section__title {
+  font-size: 22px;
+}
+
+.my-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.my-events-status {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  padding: 28px 0;
+}
+
+.my-events-status--error {
+  color: var(--color-error);
+}
+
+.my-events-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.my-events-empty__message {
+  font-size: 18px;
+  color: var(--color-text-secondary);
+}
+
+@keyframes my-events-shimmer {
+  0%   { opacity: 0.5; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.my-events-skeleton {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.my-events-skeleton__body {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.my-events-skeleton__bar {
+  background: var(--color-border);
+  border-radius: 4px;
+  animation: my-events-shimmer 1.6s ease-in-out infinite;
+}
+
+.my-events-skeleton__bar--accent {
+  height: 4px;
+  width: 100%;
+  border-radius: 0;
+  animation: none;
+  opacity: 0.4;
+}
+
+.my-events-skeleton__bar--badge {
+  height: 18px;
+  width: 72px;
+  border-radius: var(--radius-badge);
+}
+
+.my-events-skeleton__bar--title {
+  height: 22px;
+  width: 75%;
+}
+
+.my-events-skeleton__bar--date {
+  height: 14px;
+  width: 50%;
+}
+
+.my-events-skeleton__bar--location {
+  height: 14px;
+  width: 38%;
+}
+
+@media (max-width: 640px) {
+  .my-events-main {
+    padding: 32px 16px 64px;
+    gap: 40px;
+  }
+
+  .my-events-header__title {
+    font-size: 28px;
+  }
+
+  .my-events-grid {
+    grid-template-columns: 1fr;
+  }
+}
