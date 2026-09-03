@@ -69,7 +69,7 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "app_service" {
 
 # Key Vault — names must be globally unique and 3-24 chars.
 resource "azurerm_key_vault" "main" {
-  name                       = "kv-${local.name_suffix}-2"
+  name                       = "kv-${local.name_suffix}-b"
   location                   = azurerm_resource_group.main.location
   resource_group_name        = azurerm_resource_group.main.name
   tenant_id                  = data.azurerm_client_config.current.tenant_id
