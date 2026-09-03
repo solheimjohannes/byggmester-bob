@@ -1,7 +1,7 @@
-import { useState, type ReactNode } from 'react';
 // TODO: MOCK SESSION — restore the two imports below and remove the MOCK_SESSION import before production
-// import { useEffect, type ReactNode } from 'react';
+// import { useState, useEffect, type ReactNode } from 'react';
 // import { fetchSession } from '../api';
+import { useState, type ReactNode } from 'react';
 import { AuthContext } from './authContext';
 import { MOCK_SESSION } from '../lib/mock/session';
 

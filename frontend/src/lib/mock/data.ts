@@ -1,3 +1,4 @@
+// TODO: MOCK SESSION — remove this file before production
 import type { User } from '../../types';
 
 export const MOCK_USER: User = {
