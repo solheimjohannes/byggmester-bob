@@ -1,13 +1,13 @@
 variable "location" {
   description = "Azure region for all resources."
   type        = string
-  default     = "norwayeast"
+  default     = "swedencentral"
 }
 
 variable "resource_group_name" {
   description = "Name of the resource group to create or reuse."
   type        = string
-  default     = "rg-byggmester"
+  default     = "byggmester-bob-rg"
 }
 
 variable "project_name" {
