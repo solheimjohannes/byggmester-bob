@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchEvent, updateEvent } from '../api';
+import { updateEvent } from '../api';
 import { EventForm, type EventFormValues } from '../components/EventForm';
 import { useAuth } from '../context/useAuth';
+// TODO: MOCK DATA — replace with real query before production
+import { MOCK_USER } from '../lib/mock/data';
+import { getEventById } from '../lib/mock/queries';
 import type { Event } from '../types';
 import './CreateEventPage.css';
 
@@ -63,10 +66,14 @@ export default function EditEventPage() {
     if (user === null) { navigate('/login', { replace: true }); return; }
     if (!id) return;
 
-    fetchEvent(id)
+    getEventById(id)
       .then((data) => {
-        if (data.createdById !== user.id) {
-          navigate(`/events/${id}`, { replace: true });
+        if (!data) {
+          setLoadError('Event not found.');
+          return;
+        }
+        if (data.createdById !== MOCK_USER.id) {
+          setLoadError("You don't have permission to edit this event.");
           return;
         }
         setEvent(data);
