@@ -41,7 +41,7 @@ export default function BrowsePage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchPublicEvents(urlQ || undefined)
+    fetchPublicEvents({ q: urlQ || undefined })
       .then((data) => {
         if (!cancelled) {
           setLoadedState({ status: 'ok', data });
