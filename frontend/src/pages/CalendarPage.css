@@ -127,6 +127,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow: hidden;
 }
 
 .cal-grid__cell:last-child {
@@ -165,7 +166,9 @@
 }
 
 .cal-grid__pill {
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   background: var(--color-orange-light);
   color: var(--color-orange);
   border-radius: 6px;
@@ -174,8 +177,8 @@
   font-weight: 700;
   text-decoration: none;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
