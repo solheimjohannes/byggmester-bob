@@ -16,6 +16,7 @@ import CreateEventPage from './pages/CreateEventPage';
 import EditEventPage from './pages/EditEventPage';
 import EventDetailPage from './pages/EventDetailPage';
 import LoginPage from './pages/LoginPage';
+import FriendsPage from './pages/FriendsPage';
 import MyEventsPage from './pages/MyEventsPage';
 import ProfilePage from './pages/ProfilePage';
 import RecommendedPage from './pages/RecommendedPage';
@@ -125,6 +126,7 @@ export default function App() {
         <Route path="/calendar" element={<CalendarPage />} />
         <Route path="/my-events" element={<MyEventsPage />} />
         <Route path="/recommended" element={<RecommendedPage />} />
+        <Route path="/friends" element={<FriendsPage />} />
       </Routes>
     </>
   );

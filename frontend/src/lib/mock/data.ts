@@ -1,5 +1,5 @@
 // TODO: MOCK DATA — remove this file before production
-import type { Event, User, Venue } from '../../types';
+import type { Event, FriendRequest, Friendship, User, Venue } from '../../types';
 
 export const MOCK_USER: User = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -8,10 +8,53 @@ export const MOCK_USER: User = {
   image: null,
 };
 
-export const MOCK_FRIENDS: User[] = [
-  { id: 'friend-1', name: 'Sara Lindqvist', email: 'sara@example.com', image: null },
-  { id: 'friend-2', name: 'Jonas Berg', email: 'jonas@example.com', image: null },
-  { id: 'friend-3', name: 'Mia Haugen', email: 'mia@example.com', image: null },
+// TODO: MOCK DATA
+export const MOCK_ALL_USERS: User[] = [
+  { id: 'user-2', name: 'Sara Lindqvist', email: 'sara@example.com', image: null },
+  { id: 'user-3', name: 'Jonas Berg', email: 'jonas@example.com', image: null },
+  { id: 'user-4', name: 'Mia Haugen', email: 'mia@example.com', image: null },
+  { id: 'user-5', name: 'Erik Dahl', email: 'erik@example.com', image: null },
+  { id: 'user-6', name: 'Ingrid Solberg', email: 'ingrid@example.com', image: null },
+];
+
+// TODO: MOCK DATA
+export const MOCK_FRIENDS: Friendship[] = [
+  {
+    id: 'friendship-1',
+    userId: MOCK_USER.id,
+    friendId: 'user-2',
+    status: 'accepted',
+    friend: MOCK_ALL_USERS[0], // Sara
+  },
+  {
+    id: 'friendship-2',
+    userId: MOCK_USER.id,
+    friendId: 'user-3',
+    status: 'accepted',
+    friend: MOCK_ALL_USERS[1], // Jonas
+  },
+];
+
+// TODO: MOCK DATA
+export const MOCK_FRIEND_REQUESTS: FriendRequest[] = [
+  {
+    id: 'friendship-3',
+    userId: 'user-4',
+    friendId: MOCK_USER.id,
+    status: 'pending',
+    from: MOCK_ALL_USERS[2], // Mia
+  },
+];
+
+// TODO: MOCK DATA
+export const MOCK_SENT_REQUESTS: Friendship[] = [
+  {
+    id: 'friendship-4',
+    userId: MOCK_USER.id,
+    friendId: 'user-5',
+    status: 'pending',
+    friend: MOCK_ALL_USERS[3], // Erik
+  },
 ];
 
 export const MOCK_VENUES: Venue[] = [
@@ -271,6 +314,14 @@ export const MOCK_FRIENDS_EVENTS: Event[] = [
     attendeeCount: 1400,
     venue: MOCK_VENUES[5],
   },
+];
+
+// TODO: MOCK DATA — maps event IDs to attendee user IDs so friend cards can show upcoming event counts
+export const MOCK_EVENT_ATTENDEES: { eventId: string; userId: string }[] = [
+  { eventId: 'event-fr-1', userId: 'user-2' }, // Sara at Jazz at the Library
+  { eventId: 'event-fr-2', userId: 'user-2' }, // Sara at Yoga in the Park
+  { eventId: 'event-fr-3', userId: 'user-3' }, // Jonas at Oslo Street Food Festival
+  { eventId: 'event-up-2', userId: 'user-3' }, // Jonas at Nordic Tech Summit
 ];
 
 export const MOCK_PUBLIC_EVENTS: Event[] = [

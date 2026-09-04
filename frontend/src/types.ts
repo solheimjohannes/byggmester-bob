@@ -27,6 +27,22 @@ export interface User {
   image: string | null;
 }
 
+export interface Friendship {
+  id: string;
+  userId: string;
+  friendId: string;
+  status: 'accepted' | 'pending';
+  friend: User;
+}
+
+export interface FriendRequest {
+  id: string;
+  userId: string;
+  friendId: string;
+  status: 'pending';
+  from: User;
+}
+
 export type FetchState<T> =
   | { status: 'loading' }
   | { status: 'error'; message: string }
