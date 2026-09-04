@@ -1,5 +1,5 @@
 // TODO: MOCK DATA — remove this file before production
-import type { Event, FriendRequest, Friendship, User, Venue } from '../../types';
+import type { Event, EventPost, FriendRequest, Friendship, User, Venue } from '../../types';
 
 export const MOCK_USER: User = {
   id: '00000000-0000-0000-0000-000000000001',
@@ -330,3 +330,37 @@ export const MOCK_PUBLIC_EVENTS: Event[] = [
   ...MOCK_FRIENDS_EVENTS,
   MOCK_CREATED_EVENTS[0],
 ];
+
+// TODO: MOCK DATA — replace with real query before production
+export const MOCK_POSTS: Record<string, EventPost[]> = {
+  'event-up-1': [
+    {
+      id: 'post-1',
+      eventId: 'event-up-1',
+      authorId: 'user-2',
+      author: { name: 'Sara Lindqvist', email: 'sara@example.com', image: null },
+      content: 'Really looking forward to this! Anyone else coming from Grünerløkka?',
+      createdAt: '2026-09-20T14:32:00Z',
+      updatedAt: '2026-09-20T14:32:00Z',
+    },
+    {
+      id: 'post-2',
+      eventId: 'event-up-1',
+      authorId: 'user-3',
+      author: { name: 'Jonas Berg', email: 'jonas@example.com', image: null },
+      content: 'Yes! See you there. The venue has great outdoor space too 🎉',
+      createdAt: '2026-09-20T15:10:00Z',
+      updatedAt: '2026-09-20T15:10:00Z',
+    },
+    {
+      id: 'post-3',
+      eventId: 'event-up-1',
+      authorId: 'mock-user-1',
+      author: { name: 'Alex Johnson', email: 'alex@example.com', image: null },
+      content: 'Doors open at 10:00 — feel free to arrive any time after that!',
+      createdAt: '2026-09-21T09:00:00Z',
+      updatedAt: '2026-09-21T09:00:00Z',
+    },
+  ],
+  'event-up-2': [],
+};

@@ -47,3 +47,17 @@ export type FetchState<T> =
   | { status: 'loading' }
   | { status: 'error'; message: string }
   | { status: 'ok'; data: T };
+
+export interface EventPost {
+  id: string;
+  eventId: string;
+  authorId: string;
+  author: {
+    name: string | null;
+    email: string;
+    image: string | null;
+  };
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+}
