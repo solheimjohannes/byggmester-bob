@@ -1,6 +1,6 @@
 // TODO: MOCK DATA — remove this file before production
 import type { FetchPublicEventsParams } from '../../api';
-import type { Event, FriendRequest, Friendship, User } from '../../types';
+import type { Event, EventPost, FriendRequest, Friendship, User } from '../../types';
 import {
   MOCK_ALL_USERS,
   MOCK_CREATED_EVENTS,
@@ -8,10 +8,12 @@ import {
   MOCK_FRIEND_REQUESTS,
   MOCK_FRIENDS,
   MOCK_FRIENDS_EVENTS,
+  MOCK_POSTS,
   MOCK_PUBLIC_EVENTS,
   MOCK_RECOMMENDATIONS,
   MOCK_SENT_REQUESTS,
   MOCK_UPCOMING_PLANS,
+  MOCK_USER,
 } from './data';
 
 export function fetchUpcomingPlans(_userId: string): Promise<Event[]> {
@@ -74,6 +76,33 @@ export async function getSentFriendRequestsForUser(_userId: string): Promise<Fri
 // where it will hit the database
 export async function searchUsers(_query: string, _excludeUserId: string): Promise<User[]> {
   return MOCK_ALL_USERS;
+}
+
+// TODO: MOCK DATA — replace with real query before production
+export async function getPostsForEvent(eventId: string): Promise<EventPost[]> {
+  return MOCK_POSTS[eventId] ?? [];
+}
+
+// TODO: MOCK DATA — replace with real Server Action before production
+export async function createPost(eventId: string, content: string): Promise<EventPost> {
+  return {
+    id: `post-mock-${Date.now()}`,
+    eventId,
+    authorId: MOCK_USER.id,
+    author: {
+      name: MOCK_USER.name,
+      email: MOCK_USER.email,
+      image: MOCK_USER.image,
+    },
+    content,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+// TODO: MOCK DATA — replace with real Server Action before production
+export async function deletePost(_postId: string): Promise<{ success: boolean }> {
+  return { success: true };
 }
 
 // TODO: MOCK DATA — replace with real query before production

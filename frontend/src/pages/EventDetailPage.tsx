@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { formatEventDate } from '../api';
+import { EventDiscussion } from '../components/EventDiscussion';
 import { useAuth } from '../context/useAuth';
 // TODO: MOCK DATA — replace with real query before production
-import { getEventById } from '../lib/mock/queries';
-import type { Event, FetchState } from '../types';
+import { getEventById, getPostsForEvent } from '../lib/mock/queries';
+import type { Event, EventPost, FetchState } from '../types';
 import './EventDetailPage.css';
 
 export default function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [state, setState] = useState<FetchState<Event>>({ status: 'loading' });
+  const [initialPosts, setInitialPosts] = useState<EventPost[]>([]);
 
   useEffect(() => {
     if (!id) return;
@@ -21,6 +23,10 @@ export default function EventDetailPage() {
           return;
         }
         setState({ status: 'ok', data });
+        return getPostsForEvent(id);
+      })
+      .then((posts) => {
+        if (posts) setInitialPosts(posts);
       })
       .catch(() => setState({ status: 'error', message: 'Failed to load event. It may not exist or you may not have permission to view it.' }));
   }, [id]);
@@ -128,6 +134,13 @@ export default function EventDetailPage() {
         <div className="event-detail-actions">
           <Link to="/" className="btn btn--secondary">← Back</Link>
         </div>
+
+        <EventDiscussion
+          initialPosts={initialPosts}
+          eventId={event.id}
+          currentUserId={user?.id ?? ''}
+          isOwner={isOwner}
+        />
       </div>
     </main>
   );
