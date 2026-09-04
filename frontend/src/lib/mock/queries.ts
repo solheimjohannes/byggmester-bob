@@ -1,11 +1,16 @@
 // TODO: MOCK DATA — remove this file before production
 import type { FetchPublicEventsParams } from '../../api';
-import type { Event } from '../../types';
+import type { Event, FriendRequest, Friendship, User } from '../../types';
 import {
+  MOCK_ALL_USERS,
   MOCK_CREATED_EVENTS,
+  MOCK_EVENT_ATTENDEES,
+  MOCK_FRIEND_REQUESTS,
+  MOCK_FRIENDS,
   MOCK_FRIENDS_EVENTS,
   MOCK_PUBLIC_EVENTS,
   MOCK_RECOMMENDATIONS,
+  MOCK_SENT_REQUESTS,
   MOCK_UPCOMING_PLANS,
 } from './data';
 
@@ -47,4 +52,41 @@ export function getEventById(id: string): Promise<Event | null> {
 // TODO: MOCK DATA — replace with real query before production
 export function fetchCalendarEvents(_userId: string): Promise<Event[]> {
   return Promise.resolve([...MOCK_UPCOMING_PLANS, ...MOCK_CREATED_EVENTS]);
+}
+
+// TODO: MOCK DATA — replace with real query before production
+export async function getFriendsForUser(_userId: string): Promise<Friendship[]> {
+  return MOCK_FRIENDS;
+}
+
+// TODO: MOCK DATA — replace with real query before production
+export async function getFriendRequestsForUser(_userId: string): Promise<FriendRequest[]> {
+  return MOCK_FRIEND_REQUESTS;
+}
+
+// TODO: MOCK DATA — replace with real query before production
+export async function getSentFriendRequestsForUser(_userId: string): Promise<Friendship[]> {
+  return MOCK_SENT_REQUESTS;
+}
+
+// TODO: MOCK DATA — replace with real query before production
+// Search is client-side in mock mode; this signature is for the real implementation
+// where it will hit the database
+export async function searchUsers(_query: string, _excludeUserId: string): Promise<User[]> {
+  return MOCK_ALL_USERS;
+}
+
+// TODO: MOCK DATA — replace with real query before production
+export async function getUpcomingEventCountsForFriends(
+  friendIds: string[],
+): Promise<Record<string, number>> {
+  const now = new Date().toISOString();
+  const counts: Record<string, number> = {};
+  for (const uid of friendIds) {
+    counts[uid] = MOCK_EVENT_ATTENDEES.filter(
+      (a) =>
+        a.userId === uid && MOCK_PUBLIC_EVENTS.some((e) => e.id === a.eventId && e.startAt > now),
+    ).length;
+  }
+  return counts;
 }
